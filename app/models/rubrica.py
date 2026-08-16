@@ -1,13 +1,20 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 
 
-class Participante(Base):
-    __tablename__ = "participante"
+class Rubrica(Base):
+    __tablename__ = "rubrica"
 
     id: Mapped[int] = mapped_column(
         Integer,
@@ -18,8 +25,7 @@ class Participante(Base):
     codigo: Mapped[str] = mapped_column(
         String,
         unique=True,
-        nullable=False,
-        index=True
+        nullable=False
     )
 
     nombre: Mapped[str] = mapped_column(
@@ -27,22 +33,23 @@ class Participante(Base):
         nullable=False
     )
 
-    programa_doctoral: Mapped[str | None] = mapped_column(
-        String,
+    version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1
+    )
+
+    descripcion: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True
     )
 
-    titulo_presentacion: Mapped[str] = mapped_column(
-        Text,
+    puntaje_maximo: Mapped[float] = mapped_column(
+        Float,
         nullable=False
     )
 
-    imagen_s3_key: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True
-    )
-
-    activo: Mapped[bool] = mapped_column(
+    activa: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
         default=True
