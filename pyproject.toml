@@ -6,14 +6,15 @@ authors = [
     {name = "Jonathan Campos Lozano",email = "jc222209@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "fastapi (>=0.141.1,<0.142.0)",
     "uvicorn (>=0.52.3,<0.53.0)",
     "sqlalchemy (>=2.0.52,<3.0.0)",
     "pydantic (>=2.13.4,<3.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
-    "email-validator (>=2.3.0,<3.0.0)"
+    "email-validator (>=2.3.0,<3.0.0)",
+    "websockets (>=17.0.1,<18.0.0)"
 ]
 
 

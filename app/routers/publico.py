@@ -23,21 +23,27 @@ from app.services.voto_publico_service import (
     registrar_voto,
 )
 
+from app.services.resultados_realtime_service import (
+    emitir_resultados_actualizados,
+)
+
 
 router = APIRouter(
     prefix="/api/publico",
-    tags=["Votación pública"]
+    tags=["Votación pública"],
 )
 
+
+# =========================================================
+# LISTAR PARTICIPANTES PARA EL TARJETÓN
+# =========================================================
 
 @router.get(
     "/participantes",
-    response_model=list[
-        ParticipantePublicoResponse
-    ]
+    response_model=list[ParticipantePublicoResponse],
 )
 def participantes(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
 
     return listar_participantes_publicos(
@@ -45,15 +51,19 @@ def participantes(
     )
 
 
+# =========================================================
+# REGISTRAR VOTO
+# =========================================================
+
 @router.post(
     "/votos",
     response_model=VotoPublicoResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
-def votar(
+async def votar(
     data: VotoPublicoCreate,
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
 
     ip = None
@@ -67,29 +77,41 @@ def votar(
 
     try:
 
-        return registrar_voto(
+        voto = registrar_voto(
             db=db,
             data=data,
             ip=ip,
-            user_agent=user_agent
+            user_agent=user_agent,
         )
+
+        # -------------------------------------------------
+        # ACTUALIZAR RESULTADOS EN TIEMPO REAL
+        # -------------------------------------------------
+
+        await emitir_resultados_actualizados(
+            db=db
+        )
+
+        return voto
 
     except ValueError as exc:
 
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=str(exc)
+            detail=str(exc),
         )
 
 
+# =========================================================
+# RESULTADOS PÚBLICOS
+# =========================================================
+
 @router.get(
     "/resultados",
-    response_model=list[
-        ResultadoPublicoResponse
-    ]
+    response_model=list[ResultadoPublicoResponse],
 )
 def resultados(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
 
     registros = obtener_resultados(
@@ -101,7 +123,7 @@ def resultados(
             participante_id=registro.id,
             codigo=registro.codigo,
             nombre=registro.nombre,
-            total_votos=registro.total_votos
+            total_votos=registro.total_votos,
         )
         for registro in registros
     ]
